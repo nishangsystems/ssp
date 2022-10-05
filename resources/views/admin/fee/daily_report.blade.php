@@ -39,7 +39,11 @@
                             </tr>
                             @php($total += $fee->amount)
                         @endforeach
-
+                        <tr class="text-capitalize">
+                             <td colspan="3">{{__('text.word_total')}}</td>
+                             <td>{{array_sum($fees->pluck('amount')->toArray())}}</td>
+                             <td></td>
+                        </tr>
                     </tbody>
                 </table>
             </div>

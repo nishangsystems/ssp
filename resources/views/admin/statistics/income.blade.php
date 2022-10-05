@@ -53,6 +53,7 @@
                         <td class="border-left border-right">{{$totals['cost']}}</td>
                     </tr>
                     @endif
+                    
                 </tbody>
             </table>
         </div>

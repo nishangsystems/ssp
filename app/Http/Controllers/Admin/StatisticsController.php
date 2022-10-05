@@ -267,10 +267,10 @@ class StatisticsController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'filter'=>'string',
-            '$value'=>'month',
             'start_date'=>'date',
             'end_date'=>'date'
         ]);
+
         $data['title'] = "Income Statistics";
         try {
             $expenditureItems = null;
@@ -279,7 +279,8 @@ class StatisticsController extends Controller
                 return view('admin.statistics.income')->with($data);
             }
             if($validator->fails())
-                {return back()->with('error', json_encode($validator->getMessageBag()->getMessages()));}
+                {return back()->with('error', $validator->errors()->first());}
+
                 $data['filter'] = $request->filter == 'year' 
                         ? 'year ' . $request->value 
                         : ($request->filter == 'month' 
@@ -289,12 +290,12 @@ class StatisticsController extends Controller
             switch ($request->filter) {
                 case 'month': #having $value
                     # code...
-                    $expenditureItems = DB::table('pay_incomes')
-                        ->whereYear('pay_incomes.created_at', '=', date('Y', strtotime($request->value)))
-                        ->whereMonth('pay_incomes.created_at', '=', date('m', strtotime($request->value)))
-                        ->join('incomes', 'incomes.id', '=', 'pay_incomes.income_id')
+                    $expenditureItems = DB::table('payments')->join('payment_items', 'payments.payment_id', '=', 'payments.id')
+                        ->whereYear('payments.created_at', '=', date('Y', strtotime($request->value)))
+                        ->whereMonth('payments.created_at', '=', date('m', strtotime($request->value)))
                         ->get();
-                        $names = array_unique($expenditureItems->pluck('name')->toArray());
+                    // dd($expenditureItems);
+                    $names = array_unique($expenditureItems->pluck('name')->toArray());
                     $data['data'] = array_map(function($val) use ($expenditureItems){
                         return [
                             'name'=>$val,
@@ -311,9 +312,8 @@ class StatisticsController extends Controller
                     break;
                 case 'year':
                     # code...
-                    $expenditureItems = DB::table('pay_incomes')
-                        ->whereYear('pay_incomes.created_at', '=', date('Y',strtotime($request->value)))
-                        ->join('incomes', 'incomes.id', '=', 'pay_incomes.income_id')
+                    $expenditureItems = DB::table('payments')->join('payment_items', 'payment_items.id', '=', 'payments.payment_id')
+                        ->whereYear('payments.created_at', '=', date('Y',strtotime($request->value)))
                         ->get();
                     $names = array_unique($expenditureItems->pluck('name')->toArray());
                     $data['data'] = array_map(function($val) use ($expenditureItems){
@@ -332,10 +332,10 @@ class StatisticsController extends Controller
                     break;
                 case 'range':
                     # has $from&$to or $start_date & $end_date
-                    $expenditureItems = DB::table('pay_incomes')
-                    ->whereDate('pay_incomes.created_at', '>=', date('Y-m-d', strtotime($request->start_date)))
-                    ->whereDate('pay_incomes.created_at', '<=', date('Y-m-d', strtotime($request->end_date)))
-                    ->join('incomes', 'incomes.id', '=', 'pay_incomes.income_id')
+                    $expenditureItems = DB::table('payments')
+                    ->whereDate('payments.created_at', '>=', date('Y-m-d', strtotime($request->start_date)))
+                    ->whereDate('payments.created_at', '<=', date('Y-m-d', strtotime($request->end_date)))
+                    ->join('payment_items', 'payment_items.id', '=', 'payments.payment_id')
                     ->get();
                     $names = array_unique($expenditureItems->pluck('name')->toArray());
                     $data['data'] = array_map(function($val) use ($expenditureItems){
