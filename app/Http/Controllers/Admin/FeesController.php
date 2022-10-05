@@ -54,7 +54,9 @@ class FeesController extends Controller
     public function daily_report(Request  $request)
     {
         $title = "Fee Daily Report for " . ($request->date ? $request->date : Carbon::now()->format('d/m/Y'));
-        $fees = Payments::whereDate('created_at', $request->date ? $request->date : Carbon::now())->get();
+        $fees = Payments::whereDate('payments.created_at', $request->date ? $request->date : Carbon::now())
+            ->join('payment_items', 'payments.payment_id', '=', 'payment_items.id')
+            ->get(['payments.*', 'payment_items.name']);
         return view('admin.fee.daily_report', compact('fees', 'title'));
     }
 

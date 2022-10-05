@@ -347,8 +347,8 @@ class StatisticsController extends Controller
                     }, $names);
                     $data['totals'] = [
                         'name'=>"Total",
-                        'count'=>count($expenditureItems->toArray()),
-                        'cost'=>array_sum($expenditureItems->pluck('amount')->toArray())
+                        'count'=>(count($expenditureItems->toArray())),
+                        'cost'=>(array_sum($expenditureItems->pluck('amount')->toArray()))
                     ];
                     return view('admin.statistics.income')->with($data);
                     break;
